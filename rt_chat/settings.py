@@ -32,7 +32,9 @@ if ENVIRONMENT == 'production':
 else:
     DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'chatterhub-mhc6.onrender.com']
+
+CSRF_TRUSTED_ORIGINS = ['https://chatterhub-mhc6.onrender.com']
 
 if ENVIRONMENT == 'development':
     MEDIA_URL = 'media/'
