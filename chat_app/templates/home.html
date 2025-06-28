@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block content %}
+
+<div class="min-h-screen flex flex-col justify-center items-center px-4 bg-gradient-to-b from-yellow-50 to-amber-100">
+
+  <!-- Branding -->
+  <div class="text-center mb-10">
+    <img src="{% static 'chatterapp.jpeg' %}" alt="ChatterHub Logo" class="w-20 h-20 rounded-full mx-auto mb-3 shadow-md">
+    <h1 class="text-4xl font-bold text-amber-800">ChatterHub</h1>
+    <p class="text-amber-700 text-sm mt-1">Create or join chat rooms instantly</p>
+  </div>
+
+  <!-- Card -->
+  <div class="bg-white border border-amber-200 shadow-lg rounded-2xl p-8 w-full max-w-md space-y-6">
+
+    <!-- Title -->
+    <div class="text-center">
+      <h2 class="text-xl font-bold text-amber-900">Start Chatting</h2>
+      <p class="text-sm text-gray-600 mt-1">Enter a room name to create or join a chat room</p>
+    </div>
+
+    <!-- Form -->
+    <form id="roomForm" class="space-y-4">
+      <!-- Room name input -->
+      <input type="text" id="roomName" placeholder="Room name"
+        class="w-full px-4 py-2 border border-amber-300 rounded-md bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400 text-amber-900">
+
+      <!-- Buttons -->
+      <button type="button" id="generateLinkBtn"
+        class="w-full flex items-center justify-center gap-2 px-4 py-2 border border-amber-400 text-amber-800 rounded-md bg-amber-100 hover:bg-amber-200 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M13.828 10.172a4 4 0 010 5.656m-3.656-5.656a4 4 0 015.656 0m-9.9 2.828a6 6 0 018.485 0m-1.414 1.414a6 6 0 01-8.485 0">
+          </path>
+        </svg>
+        Generate Shareable Link
+      </button>
+
+      <a id="enterRoomLink"
+        class="block w-full text-center px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white rounded-md transition cursor-pointer">
+        Enter Chat Room
+      </a>
+    </form>
+
+    <!-- Share box -->
+    <div id="shareBox" class="hidden bg-amber-50 border border-amber-300 p-4 rounded-md">
+      <label class="text-sm font-medium text-amber-800">Share this link:</label>
+      <div class="flex items-center mt-2">
+        <input id="roomLink" readonly
+          class="w-full px-3 py-2 text-sm bg-white border border-amber-300 rounded-l-md text-gray-800">
+        <button onclick="copyRoomLink()"
+          class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-r-md">
+          Copy
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Info below card -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-10 text-center">
+    <div>
+      <div class="text-amber-700 font-semibold">💬 Instant Chat</div>
+      <p class="text-sm text-amber-800">Start chatting immediately</p>
+    </div>
+    <div>
+      <div class="text-amber-700 font-semibold">🔗 Share & Invite</div>
+      <p class="text-sm text-amber-800">Invite friends with a link</p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_script %}
+<script>
+  const roomInput = document.getElementById("roomName");
+  const roomLinkField = document.getElementById("roomLink");
+  const shareBox = document.getElementById("shareBox");
+  const enterRoomLink = document.getElementById("enterRoomLink");
+
+  document.getElementById("generateLinkBtn").addEventListener("click", () => {
+    const room = roomInput.value.trim();
+    if (!room) return alert("Please enter a room name");
+    const fullLink = `${window.location.origin}/chat/${room}/`;
+    roomLinkField.value = fullLink;
+    shareBox.classList.remove("hidden");
+  });
+
+  enterRoomLink.addEventListener("click", () => {
+    const room = roomInput.value.trim();
+    if (!room) return alert("Enter a room name to continue.");
+    window.location.href = `/chat/${room}/`;
+  });
+
+  function copyRoomLink() {
+    roomLinkField.select();
+    document.execCommand("copy");
+  }
+</script>
+{% endblock %}

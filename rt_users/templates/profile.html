@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-br from-amber-100 to-yellow-50 border border-amber-300 rounded-lg shadow-md p-8 max-w-sm w-full text-center mx-auto mt-10">
+  
+  <!-- Profile Image -->
+   {% if profile.profile_picture %}
+   <img src="{{profile.profile_picture.url}}" alt="Profile Image" class="w-24 h-24 mx-auto rounded-full border-4 border-amber-300 mb-4 shadow-sm">
+   {% else %}
+   <img src="/media/default.jpeg" alt="Profile Image" class="w-24 h-24 mx-auto rounded-full border-4 border-amber-300 mb-4 shadow-sm">
+   {% endif %}
+
+  <!-- Username -->
+  <h2 class="text-xl font-semibold text-amber-900">@{{profile.username}}</h2>
+
+  <!-- Full Name -->
+  <p class="text-amber-800 mt-2 font-medium">{{profile.name}}</p>
+
+  <!-- Email -->
+  <p class="text-amber-700 mt-1 text-sm">{{profile.email}}</p>
+
+  <!-- Bio -->
+  <p class="text-amber-800 mt-4 text-sm leading-relaxed">
+    {{profile.bio|default:"No bio available."}}
+  </p>
+</div>
+{% endblock %}

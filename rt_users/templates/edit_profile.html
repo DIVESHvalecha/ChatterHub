@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="w-[80%] max-w-3xl mx-auto mt-10">
+    <div class="bg-gradient-to-br from-amber-100 to-yellow-50 border border-amber-300 rounded-lg shadow-md p-8">
+        <h2 class="text-2xl font-bold text-amber-900 mb-6 text-center">Edit Profile</h2>
+            <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit"
+                    class="bg-amber-700 text-white px-6 py-2 rounded-md hover:bg-amber-800 transition duration-200 shadow-sm mt-4">
+                Save Changes
+            </button>
+            </form>
+    </div>
+</div>
+{% endblock %}

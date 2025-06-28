@@ -1,0 +1,166 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="max-w-md mx-auto mt-4 text-center text-2xl font-bold text-amber-900 bg-amber-100 border border-amber-300 px-4 py-3 rounded-xl shadow">
+  Room : {{ group_name|capfirst }}
+</div>
+
+<div class="max-w-md h-[600px] mx-auto mt-8 flex flex-col border border-amber-300 rounded-xl shadow bg-gradient-to-br from-amber-100 to-yellow-50">
+
+    <!-- Header -->
+    <div class="py-2 text-center text-sm font-semibold text-green-700 bg-amber-200 border-b border-amber-300 rounded-t-xl" id = "onlineUsers">       
+    </div>
+  
+    <!-- Scrollable Chat Area -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-5" id="chatArea">
+
+      {% for message in messages %}
+      <div class="flex items-start space-x-2">
+        {% if message.user.profile_picture %}
+        <img src="{{message.user.profile_picture.url}}" alt="avatar" class="w-8 h-8 rounded-full">
+        {% else %}
+        <img src="/media/default.jpeg" alt="avatar" class="w-8 h-8 rounded-full">
+        {% endif %}
+        <div>
+          <div class="bg-white text-amber-800 px-4 py-2 rounded-lg shadow max-w-[260px] text-sm">
+            {{ message.message }}
+          </div>
+          <a href="{% url "Profile_view" message.user.username %}" class="text-sm font-semibold text-amber-700 mt-1">@{{message.user.username}}</a>
+        </div>
+      </div> 
+      {% endfor %}
+      
+      <!-- Incoming Message -->
+      {% comment %} <div class="flex items-start space-x-2">
+        <img src="https://i.pravatar.cc/40?img=5" alt="avatar" class="w-8 h-8 rounded-full">
+        <div>
+          <div class="bg-white text-amber-800 px-4 py-2 rounded-lg shadow max-w-[260px] text-sm">
+            Pretty good! Had a great day so far!
+          </div>
+          <div class="text-sm font-semibold text-amber-700 mt-1">@Bobby</div>
+        </div>
+      </div> {% endcomment %}
+  
+      <!-- Outgoing Message -->
+      {% comment %} <div class="flex justify-end">
+        <div class="bg-green-200 text-green-900 px-4 py-2 rounded-lg shadow max-w-[260px] text-sm">
+          How's everyone doing?
+        </div>
+      </div> {% endcomment %}
+  
+    </div>
+  
+    <!-- Input Bar -->
+    <div class="p-3 bg-amber-100 border-t border-amber-300 rounded-b-xl">
+        <form class="flex items-center gap-2" id = "chatform">
+          <input
+            id="messageInput"
+            type="text"
+            placeholder="Add message ..."
+            class="w-full px-4 py-2 text-sm border border-amber-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-amber-400"
+          />
+          <button
+            id="sendButton"
+            type="submit"
+            class="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full hover:bg-green-700 transition"
+          >
+            <!-- Up arrow icon -->
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+          </button>
+        </form>
+      </div>
+  </div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    // this part prevents refreshing of the page on submit
+    const form = document.getElementById("chatform");
+    form.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        // Prevent the form from submitting normally
+        });
+
+    // this part scrolls the chat area to the bottom when a new message is added
+    function scrollToBottom() {
+        const chatArea = document.getElementById('chatArea');
+        chatArea.scrollTop = chatArea.scrollHeight;
+      }
+      scrollToBottom(); // Initial scroll to bottom
+
+    // defining the CURRENT USER of the chat (khudne bheja hai ya aaya hai wo dekhne ke liye)
+    const CURRENT_USER = "{{request.user.profile.username}}";
+
+    // defining the group name of the chat room
+    const groupName = "{{ group_name }}";
+    
+    // extablihing a WebSocket connection to the server
+    var socket = new WebSocket(
+      "ws://" + window.location.host + "/ws/chat/" + groupName + "/"
+    );
+
+    //this function runs when socket connection is established
+    socket.onopen = function(event) {
+        console.log("WebSocket is open now.");
+    };
+
+    // this function runs when a message is received from the server
+    socket.onmessage = function(event) {
+        console.log("Message from server: ", event.data);
+        // Parse the incoming message data
+        const data = JSON.parse(event.data);
+
+        // check if the message is of type online_count or chat_message
+        if(data.type === "online_count"){
+            document.getElementById("onlineUsers").innerText = `${data.room_count} online`;
+            return; // Skip further processing for online users message
+        }else if (data.type === "chat_message"){
+          if(CURRENT_USER === data.sender){
+              document.getElementById("chatArea").innerHTML += `
+                  <div class="flex justify-end">
+                      <div class="bg-green-200 text-green-900 px-4 py-2 rounded-lg shadow max-w-[260px] text-sm">
+                          ${data.message}
+                      </div>
+                  </div>`;
+          }else if(data.sender !== CURRENT_USER){
+              document.getElementById("chatArea").innerHTML += `
+                  <div class="flex items-start space-x-2">
+                      <img src="${data.profile_pic}" alt="avatar" class="w-8 h-8 rounded-full">
+                      <div>
+                          <div class="bg-white text-amber-800 px-4 py-2 rounded-lg shadow max-w-[260px] text-sm">
+                              ${data.message}
+                          </div>
+                          <a href="/profiles/${data.sender}/" class="text-sm font-semibold text-amber-700 mt-1">@${data.sender}</a>
+                      </div>
+                  </div>`;
+          }
+          scrollToBottom(); // Scroll to the bottom after adding a new message
+        }
+    };
+
+    // this function runs when socket connection is closed
+    socket.onclose = function(event) {
+        console.log("WebSocket is closed now.");
+    };
+
+    // this function runs when there is an error in the socket connection
+    socket.onerror = function(error) {
+        console.error("WebSocket error observed:", error);
+    };
+
+    // this function sends the message to the server when the send button is clicked or when the enter key is pressed in the input field
+    document.getElementById("sendButton").onclick = function(event){
+        event.preventDefault(); // Prevent the form from submitting normally
+        var messageInput = document.getElementById("messageInput");
+        var message = messageInput.value.trim();
+        if (message) {
+            socket.send(message); // Send the message to the server
+            messageInput.value = ""; // Clear the input field
+        }
+    }
+   
+</script>
+{% endblock %}

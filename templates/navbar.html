@@ -1,0 +1,65 @@
+<nav class="bg-gradient-to-r from-amber-700 to-yellow-800 bg-opacity-90 border border-amber-900 px-6 py-4 shadow-lg rounded-b-lg backdrop-blur-sm">
+
+  <!-- ✅ Entire navbar in ONE flex row -->
+  <div class="flex justify-between items-center w-full">
+
+    <!-- Left: Company Name -->
+    <div class="text-white text-2xl font-bold tracking-wide">
+      ChatterHub
+    </div>
+
+    <!-- Right: Home + Profile -->
+    <div class="flex items-center space-x-6">
+      
+      {% if request.user.is_authenticated %}
+      <!-- Home -->
+      <a href="{% url "home" %}" class="text-white font-semibold hover:text-yellow-300 transition duration-200">Home</a>
+
+      <!-- Profile Dropdown -->
+      <div class="relative">
+        <button id="profileButton" class="flex items-center space-x-2 text-white font-semibold hover:text-yellow-300 focus:outline-none transition duration-200">
+          {% if request.user.profile.profile_picture %}
+          <img src="{{request.user.profile.profile_picture.url}}" alt="Profile" class="w-8 h-8 rounded-full border-2 border-white" />
+          {% else %}
+          <img src="/media/default.jpeg" alt="Profile" class="w-8 h-8 rounded-full border-2 border-white" />
+          {% endif %}
+          <span>{{request.user.profile.username}}</span>
+          <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div id="profileDropdown" class="absolute right-0 mt-2 bg-white text-gray-800 shadow-xl rounded-md w-44 z-20 overflow-hidden border border-gray-200 hidden">
+          <a href="{% url "Profile_view" request.user.profile.username %}" class="block px-4 py-2 hover:bg-amber-100 transition duration-150">My Profile</a>
+          <a href="{% url "edit_profile" request.user.profile.username %}" class="block px-4 py-2 hover:bg-amber-100 transition duration-150">Edit Profile</a>
+          {% comment %} <a href="#" class="block px-4 py-2 hover:bg-amber-100 transition duration-150">Settings</a> {% endcomment %}
+          <a href="{% url "account_logout" %}" class="block px-4 py-2 text-red-600 hover:bg-red-100 transition duration-150">Logout</a>
+        </div>
+      </div>
+      {% else %}
+      <a href="{% url "account_login" %}" class="text-white font-semibold hover:text-yellow-300 transition duration-200">Log In</a>
+      <a href="{% url "account_signup" %}" class="text-white font-semibold hover:text-yellow-300 transition duration-200">Sign Up</a>
+      {% endif %}
+    </div>
+
+  </div>
+</nav>
+
+{% block extra_script %}
+<script>
+  const profileButton = document.getElementById('profileButton');
+  const profileDropdown = document.getElementById('profileDropdown');
+
+  profileButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileDropdown.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!profileButton.contains(e.target) && !profileDropdown.contains(e.target)) {
+      profileDropdown.classList.add('hidden');
+    }
+  });
+</script>
+{% endblock %}
