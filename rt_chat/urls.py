@@ -26,7 +26,7 @@ urlpatterns = [
     path('', include('chat_app.urls')),  # Main chat app URLs
     path('profiles/<str:username>/', include('rt_users.urls')),
     path('accounts/', include('allauth.urls')),
-    path('<str:username>/', include('rt_users.urls')),  # For user profiles
+    # path('<str:username>/', include('rt_users.urls')),  # For user profiles
     path('redirect-to-edit/', views.redirect_to_edit_profile, name='redirect_to_edit_profile'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
    

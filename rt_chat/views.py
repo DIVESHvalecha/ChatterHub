@@ -8,4 +8,5 @@ def index(request):
 @login_required
 def redirect_to_edit_profile(request):
     username = request.user.profile.username
+    print(f"Redirecting to edit profile for username: {username}")
     return redirect('edit_profile', username=username)

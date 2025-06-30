@@ -24,7 +24,6 @@ ENVIRONMENT = env('ENVIRONMENT', default='development')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
-print("SECRET KEY:", SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if ENVIRONMENT == 'production':
@@ -44,10 +43,7 @@ else:
     CLOUDINARY_STORAGE = {
         'CLOUDINARY_URL': env('CLOUDINARY_URL')
     }
-print("ENVIRONMENT =", ENVIRONMENT)
-print("CLOUDINARY_URL =", env('CLOUDINARY_URL', default='Not Set'))
-print("DEFAULT_FILE_STORAGE =", DEFAULT_FILE_STORAGE if 'DEFAULT_FILE_STORAGE' in locals() else 'Not Set')
-
+    
 # Application definition
 
 INSTALLED_APPS = [
